@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Floating Point Lab</title>
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EDF1F6;
+  --surface: #FFFFFF;
+  --surface-2: #F5F7FB;
+  --ink: #14213D;
+  --muted: #56667F;
+  --line: #D2DAE6;
+  --teal: #0B7C80;
+  --teal-soft: #D7EFEE;
+  --amber: #E39100;
+  --amber-soft: #FFEFC9;
+  --sign: #C0385A;
+  --sign-soft: #FBE2E8;
+  --good: #1B8049;
+  --good-soft: #DCF2E4;
+  --bad: #B83A2C;
+  --bad-soft: #FBE3DF;
+  --bit1-bg: #14213D;
+  --bit1-ink: #FFFFFF;
+  --bit0-bg: #FFFFFF;
+  --bit0-ink: #14213D;
+  --shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 8px 24px rgba(20, 33, 61, .07);
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0A1220; --surface: #121C30; --surface-2: #17233B; --ink: #E6ECF5; --muted: #9AA8C0; --line: #2A3A57;
+    --teal: #3CC4C1; --teal-soft: #113A3E; --amber: #FFC247; --amber-soft: #3B2F12;
+    --sign: #FF7C96; --sign-soft: #3B1823; --good: #52D08D; --good-soft: #10331F; --bad: #FF8272; --bad-soft: #3A1A16;
+    --bit1-bg: #E6ECF5; --bit1-ink: #0A1220; --bit0-bg: #121C30; --bit0-ink: #E6ECF5;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0A1220; --surface: #121C30; --surface-2: #17233B; --ink: #E6ECF5; --muted: #9AA8C0; --line: #2A3A57;
+  --teal: #3CC4C1; --teal-soft: #113A3E; --amber: #FFC247; --amber-soft: #3B2F12;
+  --sign: #FF7C96; --sign-soft: #3B1823; --good: #52D08D; --good-soft: #10331F; --bad: #FF8272; --bad-soft: #3A1A16;
+  --bit1-bg: #E6ECF5; --bit1-ink: #0A1220; --bit0-bg: #121C30; --bit0-ink: #E6ECF5;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--body);
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------- header ---------- */
+.bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.bar-inner {
+  max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 12px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+}
+.brand { display: flex; align-items: center; gap: 12px; margin-right: auto; }
+.brand svg { flex: none; }
+.brand h1 { font: 800 1.5rem/1 var(--display); letter-spacing: -.01em; margin: 0; }
+.brand p { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
+.modes { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+.modes button {
+  border: 0; background: transparent; padding: 7px 14px; border-radius: 7px; cursor: pointer;
+  font-weight: 700; color: var(--muted); white-space: nowrap;
+}
+.modes button[aria-selected="true"] { background: var(--ink); color: var(--surface); }
+.score {
+  font: 700 .9rem/1 var(--mono); color: var(--muted);
+  display: inline-flex; gap: 10px; align-items: center; font-variant-numeric: tabular-nums;
+}
+.score b { color: var(--ink); }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2);
+  display: grid; place-items: center; cursor: pointer;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ---------- controls strip ---------- */
+.controls {
+  max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 14px 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+}
+.controls label { display: inline-flex; align-items: center; gap: 7px; font-size: .92rem; cursor: pointer; }
+.controls select {
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface);
+}
+.controls input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--teal); }
+.controls .spacer { flex: 1; }
+.controls label.off { opacity: .45; cursor: default; }
+
+.btn {
+  border: 0; border-radius: 9px; padding: 9px 16px; cursor: pointer; font-weight: 700;
+  background: var(--teal); color: #fff; white-space: nowrap;
+}
+:root[data-theme="dark"] .btn:not(.ghost) { color: #07181A; }
+.btn:hover:not(:disabled) { filter: brightness(1.08); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn.amber { background: var(--amber); color: #1B1300; }
+.btn.big { padding: 12px 22px; font-size: 1.05rem; }
+.link {
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--teal);
+  font-weight: 700; font-size: .9rem; text-decoration: underline; text-underline-offset: 3px;
+}
+.link:disabled { color: var(--muted); opacity: .6; cursor: default; }
+
+.custom {
+  max-width: 1320px; margin: 12px auto 0; padding-inline: 20px;
+}
+.custom-inner {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end;
+}
+.custom-inner label { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--muted); font-weight: 700; }
+.custom-inner input, .custom-inner select {
+  font: 600 1rem var(--mono); padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface-2); width: 150px;
+}
+.custom-inner select { width: 90px; }
+.custom-msg { flex-basis: 100%; margin: 0; font-size: .9rem; color: var(--bad); min-height: 1.2em; }
+
+/* ---------- main layout ---------- */
+.layout {
+  max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 16px 48px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; align-items: start;
+}
+@media (max-width: 980px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.stage {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+  padding: 22px 24px 26px; min-width: 0;
+  --cell: clamp(34px, 4.6vw, 62px);
+  --gap: calc(var(--cell) * .26);
+  --head: calc(var(--cell) * .82);
+}
+.prompt { margin: 0; font: 600 clamp(1.15rem, 2vw, 1.5rem)/1.3 var(--display); text-wrap: balance; }
+.prompt .target {
+  font: 800 1.2em var(--mono); color: var(--teal); background: var(--teal-soft);
+  padding: 0 .3em; border-radius: 6px; white-space: nowrap;
+}
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.chip {
+  font: 700 .78rem/1 var(--body); letter-spacing: .04em; text-transform: uppercase;
+  padding: 6px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
+}
+.chip.yes { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.chip.no { background: var(--amber-soft); border-color: transparent; color: var(--ink); }
+
+/* the register (question) */
+.plate {
+  margin: 20px 0 6px; display: flex; flex-wrap: wrap; gap: 14px 30px; align-items: flex-start;
+  padding: 16px 18px 12px; border-radius: 12px; background: var(--surface-2); border: 1px dashed var(--line);
+  --cell: clamp(30px, 3.4vw, 46px);
+  --gap: calc(var(--cell) * .22);
+  --head: 26px;
+}
+.field-label {
+  font: 700 .74rem/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 4px;
+}
+.row { display: flex; }
+.ework { font: 600 .95rem var(--mono); color: var(--teal); min-height: 1.5em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.plate .hop, .plate .contrib { display: none; }
+.plate .head { font-size: .8rem; }
+.plate .head.tag { color: var(--sign); font: 700 .66rem/1 var(--body); letter-spacing: .08em; text-transform: uppercase; }
+
+/* columns */
+.col { display: flex; flex-direction: column; align-items: center; width: var(--cell); margin: 0 calc(var(--gap) / 2); flex: none; }
+.head {
+  height: var(--head); width: calc(var(--cell) + var(--gap)); display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 6px; font: 700 calc(var(--cell) * .3)/1 var(--mono); color: var(--teal);
+  opacity: 0; transform: translateY(8px); transition: opacity .35s ease, transform .35s ease;
+  white-space: nowrap;
+}
+.head.show { opacity: 1; transform: none; }
+.col.sign .head { color: var(--sign); }
+.head.dim { opacity: .3; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; font-size: .72em; line-height: 1.02; vertical-align: middle; }
+.frac span:first-child { border-bottom: 1.5px solid currentColor; padding: 0 .12em; }
+
+.bit {
+  width: var(--cell); height: var(--cell); border: 2px solid var(--line); border-radius: calc(var(--cell) * .16);
+  display: grid; place-items: center; padding: 0;
+  font: 800 calc(var(--cell) * .5)/1 var(--mono);
+  background: var(--bit0-bg); color: var(--bit0-ink);
+  transition: opacity .32s ease, transform .32s ease, background .18s, color .18s, border-color .18s;
+}
+.bit.one { background: var(--bit1-bg); color: var(--bit1-ink); border-color: var(--bit1-bg); }
+.bit.q { color: var(--muted); border-style: dashed; }
+button.bit { cursor: pointer; }
+button.bit:hover { border-color: var(--teal); }
+button.bit.one:hover { border-color: var(--teal); }
+.col.sign .bit { box-shadow: 0 4px 0 -1px var(--sign); }
+.col.pad .bit { border-style: dashed; }
+.col.pad .bit.one { border-style: solid; }
+.col.veiled .bit { opacity: 0; transform: translateY(-16px) scale(.75); }
+.col.dropped .bit { opacity: .22; transform: scale(.86); }
+.col.dropped .hop { opacity: .3; }
+.col.keep .bit { outline: 3px solid var(--teal); outline-offset: 3px; }
+
+.hop {
+  height: 24px; display: grid; place-items: center; margin-top: 4px;
+  font: 800 .78rem/1 var(--mono); color: var(--amber);
+  opacity: 0; transform: scale(.4); transition: opacity .25s, transform .25s;
+}
+.hop.on { opacity: 1; transform: none; }
+.hop span { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--amber-soft); }
+.contrib {
+  min-height: calc(var(--cell) * .56); margin-top: calc((var(--cell) + var(--gap)) / 2 - 16px); display: flex; align-items: flex-start; justify-content: center;
+  font: 800 calc(var(--cell) * .3)/1.1 var(--mono); color: var(--teal);
+  opacity: 0; transform: translateY(-6px); transition: opacity .3s, transform .3s; white-space: nowrap;
+}
+.contrib.show { opacity: 1; transform: none; }
+.col.sign .contrib { color: var(--sign); }
+
+/* binary point */
+.pt { width: 0; position: relative; align-self: stretch; z-index: 2; flex: none; will-change: transform; }
+.pt .dot {
+  position: absolute; left: 0; top: calc(var(--head) + var(--cell) - 7px);
+  width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+  background: var(--amber); box-shadow: 0 0 0 4px var(--amber-soft), 0 0 16px var(--amber);
+}
+.pt.static .dot { width: 11px; height: 11px; margin-left: -5.5px; top: calc(var(--head) + var(--cell) - 7px); box-shadow: 0 0 0 3px var(--amber-soft); }
+.pt.ghost .dot { background: transparent; border: 2px dashed var(--amber); box-shadow: none; }
+.pt.land .dot { animation: land .6s ease-in-out; }
+@keyframes land {
+  0% { transform: scale(1.18, .88); }
+  50% { transform: scale(.97, 1.03); }
+  100% { transform: none; }
+}
+.flyer { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 3; pointer-events: none; will-change: transform; }
+.flyer .dot {
+  position: absolute; left: -8px; top: -8px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--amber); box-shadow: 0 0 0 4px var(--amber-soft), 0 0 18px var(--amber);
+}
+.flyer .dot::after {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid var(--amber); opacity: 0;
+}
+.flyer.land .dot::after { animation: ring .9s ease-out; }
+@keyframes ring {
+  0% { opacity: .85; transform: scale(1); }
+  100% { opacity: 0; transform: scale(2.8); }
+}
+.fly-badge { position: absolute; left: 0; top: 4px; width: 0; z-index: 3; pointer-events: none; will-change: transform; }
+.fly-badge span {
+  display: inline-block; transform: translateX(-50%); white-space: nowrap;
+  font: 800 .85rem/1 var(--mono); color: #1B1300; background: var(--amber);
+  padding: 5px 8px; border-radius: 999px; opacity: 0; transition: opacity .4s;
+}
+.fly-badge.on span { opacity: 1; }
+.scanner {
+  position: absolute; z-index: 1; pointer-events: none; opacity: 0;
+  border: 3px solid var(--teal); border-radius: 14px; background: transparent;
+}
+.scanner.show { opacity: 1; }
+.scanner.miss { border-color: var(--muted); }
+.scanner.found { border-color: var(--good); box-shadow: 0 0 0 3px var(--good-soft); }
+.scanner.faded { opacity: .3; }
+.scanner.faded .scan-tag { display: none; }
+.scan-tag {
+  position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%);
+  font: 800 .95rem/1 var(--mono); padding: 5px 10px; border-radius: 999px;
+  background: var(--teal); color: #fff; white-space: nowrap;
+}
+.scan-tag:empty { display: none; }
+.scanner.miss .scan-tag { background: var(--muted); }
+.scanner.found .scan-tag { background: var(--good); }
+.trails { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 1; }
+.trails .trail { fill: none; stroke: var(--amber); stroke-width: 2.5; stroke-dasharray: 5 6; stroke-linecap: round; opacity: .75; }
+.pt .badge {
+  position: absolute; left: 0; transform: translateX(-50%);
+  top: -28px;
+  font: 800 .85rem/1 var(--mono); color: #1B1300; background: var(--amber);
+  padding: 5px 8px; border-radius: 999px; white-space: nowrap; opacity: 0; transition: opacity .2s;
+}
+.pt .badge.on { opacity: 1; }
+
+.track-wrap { overflow-x: auto; margin: 18px -8px 0; padding: 4px 8px 6px; }
+.track { display: flex; justify-content: center; min-width: max-content; position: relative; margin: 0 auto; padding-top: 32px; }
+.track-label {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-top: 18px;
+  font: 700 .74rem/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.caption { margin: 10px 0 0; color: var(--muted); max-width: 70ch; min-height: 1.5em; }
+.caption b { color: var(--ink); }
+.sum {
+  margin-top: 12px; font: 700 clamp(1.05rem, 2vw, 1.45rem)/1.4 var(--mono); font-variant-numeric: tabular-nums;
+  min-height: 1.4em; overflow-wrap: anywhere;
+}
+.sum .neg { color: var(--sign); }
+.sum .eq { color: var(--teal); }
+.nowrap { white-space: nowrap; }
+.val { white-space: nowrap; }
+.sum .frac, .big-val .frac, .target .frac, .res .frac { font-size: .62em; }
+.running { font: 700 1rem var(--mono); color: var(--teal); }
+.track-tools { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.unit-toggle {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer; text-transform: none; letter-spacing: 0;
+  font: 700 .9rem/1 var(--body); color: var(--ink); background: var(--amber-soft); padding: 6px 10px; border-radius: 999px;
+}
+.unit-toggle input { accent-color: var(--teal); width: 16px; height: 16px; margin: 0; }
+
+/* ---------- steps ---------- */
+.steps { display: flex; flex-direction: column; gap: 10px; }
+.step {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+  transition: opacity .25s, border-color .25s;
+}
+.step header { display: flex; align-items: center; gap: 10px; }
+.step h3 { margin: 0; font: 700 1.08rem/1.2 var(--display); flex: 1; }
+.num {
+  width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  font: 800 .9rem/1 var(--mono); background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
+}
+.res { font: 800 .95rem var(--mono); color: var(--good); }
+.step .body { display: none; margin-top: 10px; }
+.step.active { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-soft); }
+.step.active .body { display: block; }
+.step.active .num { background: var(--teal); border-color: var(--teal); color: #fff; }
+:root[data-theme="dark"] .step.active .num { color: #07181A; }
+.step.done .num { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.step.locked { opacity: .55; }
+.step p { margin: 0 0 10px; }
+.answer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.answer label { font-weight: 700; }
+.answer input {
+  width: 9em; flex: 1 1 7em; min-width: 0; padding: 9px 11px; border-radius: 9px; border: 2px solid var(--line);
+  background: var(--surface-2); font: 700 1.1rem var(--mono);
+}
+.answer input:focus { border-color: var(--teal); outline: none; }
+.aux { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; }
+.fb { margin: 10px 0 0; padding: 0; min-height: 0; font-weight: 700; }
+.fb:empty { display: none; }
+.fb.good { color: var(--good); background: var(--good-soft); padding: 8px 11px; border-radius: 8px; }
+.fb.bad { color: var(--bad); background: var(--bad-soft); padding: 8px 11px; border-radius: 8px; }
+.fb.info { color: var(--ink); background: var(--amber-soft); padding: 8px 11px; border-radius: 8px; }
+.small { font-size: .88rem; color: var(--muted); }
+.check-row { display: inline-flex; align-items: center; gap: 7px; font-size: .9rem; margin-top: 10px; cursor: pointer; }
+.check-row input { accent-color: var(--teal); width: 16px; height: 16px; }
+
+.finish {
+  background: var(--ink); color: var(--surface); border-radius: 14px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.finish p { margin: 0; font: 600 1.05rem/1.4 var(--body); }
+.finish .big-val { font: 800 1.3rem var(--mono); color: var(--amber); }
+.finish .btn { align-self: flex-start; }
+
+.foot { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 0 28px; color: var(--muted); font-size: .85rem; }
+
+@media (max-width: 560px) {
+  .stage { padding: 16px 14px 20px; }
+  .brand p { display: none; }
+}
+</style>
+
+<header class="bar">
+  <div class="bar-inner">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="none" stroke="currentColor" stroke-width="2"></rect>
+        <text x="8" y="27" font-family="JetBrains Mono, monospace" font-weight="800" font-size="17" fill="currentColor">1</text>
+        <circle cx="21" cy="25" r="3" fill="#E39100"></circle>
+        <text x="24" y="27" font-family="JetBrains Mono, monospace" font-weight="800" font-size="17" fill="currentColor">0</text>
+      </svg>
+      <div>
+        <h1>Floating Point Lab</h1>
+        <p>Two's complement mantissa and exponent</p>
+      </div>
+    </div>
+    <div class="modes" role="tablist" aria-label="Direction">
+      <button type="button" role="tab" id="modeB2D" aria-selected="true">Binary → Denary</button>
+      <button type="button" role="tab" id="modeD2B" aria-selected="false">Denary → Binary</button>
+    </div>
+    <div class="score" aria-live="polite">
+      <span>First time <b id="scoreVal">0</b>/<b id="scoreTot">0</b></span>
+      <span>Streak <b id="streakVal">0</b></span>
+    </div>
+    <button type="button" class="icon-btn" id="themeBtn" aria-label="Switch to dark mode" title="Light / dark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+    </button>
+  </div>
+</header>
+
+<section class="controls" aria-label="Question settings">
+  <label>Format
+    <select id="fmt">
+      <option value="any">Any mix</option>
+      <option value="4+4">4-bit mantissa, 4-bit exponent</option>
+      <option value="5+3">5-bit mantissa, 3-bit exponent</option>
+      <option value="6+3">6-bit mantissa, 3-bit exponent</option>
+      <option value="6+4">6-bit mantissa, 4-bit exponent</option>
+      <option value="5+5">5-bit mantissa, 5-bit exponent</option>
+      <option value="7+4">7-bit mantissa, 4-bit exponent</option>
+      <option value="8+4">8-bit mantissa, 4-bit exponent</option>
+      <option value="6+6">6-bit mantissa, 6-bit exponent</option>
+      <option value="7+5">7-bit mantissa, 5-bit exponent</option>
+      <option value="8+3">8-bit mantissa, 3-bit exponent</option>
+    </select>
+  </label>
+  <label id="normLabel"><input type="checkbox" id="optNorm" checked> Normalised only</label>
+  <label><input type="checkbox" id="optNegM" checked> Negative mantissas</label>
+  <label><input type="checkbox" id="optNegE" checked> Negative exponents</label>
+  <label>Point speed
+    <select id="speed">
+      <option value="1200">Very slow</option>
+      <option value="800">Slow</option>
+      <option value="500" selected>Normal</option>
+      <option value="300">Quick</option>
+    </select>
+  </label>
+  <span class="spacer"></span>
+  <button type="button" class="btn ghost" id="customBtn" aria-expanded="false">Set your own</button>
+  <button type="button" class="btn" id="newBtn">New question</button>
+</section>
+
+<section class="custom" id="customPanel" hidden>
+  <div class="custom-inner" id="customB2D">
+    <label for="cMant">Mantissa bits<input id="cMant" placeholder="01101" autocomplete="off" spellcheck="false"></label>
+    <label for="cExp">Exponent bits<input id="cExp" placeholder="011" autocomplete="off" spellcheck="false"></label>
+    <button type="button" class="btn" id="cGoB">Use this number</button>
+    <p class="custom-msg" id="cMsgB"></p>
+  </div>
+  <div class="custom-inner" id="customD2B" hidden>
+    <label for="cVal">Denary value<input id="cVal" placeholder="5 3/4 or -3/8" autocomplete="off" spellcheck="false"></label>
+    <label for="cMb">Mantissa bits<select id="cMb"></select></label>
+    <label for="cEb">Exponent bits<select id="cEb"></select></label>
+    <button type="button" class="btn" id="cGoD">Use this value</button>
+    <p class="custom-msg" id="cMsgD"></p>
+  </div>
+</section>
+
+<main class="layout">
+  <section class="stage" aria-label="Working area">
+    <p class="prompt" id="prompt"></p>
+    <ul class="meta" id="meta"></ul>
+
+    <div class="plate">
+      <div class="field">
+        <div class="field-label" id="mLabel">Mantissa</div>
+        <div class="row" id="plateM"></div>
+      </div>
+      <div class="field">
+        <div class="field-label" id="eLabel">Exponent</div>
+        <div class="row" id="plateE"></div>
+        <div class="ework" id="eWork"></div>
+      </div>
+    </div>
+
+    <div class="track-label"><span id="trackTitle">Mantissa</span><span class="track-tools"><label class="unit-toggle" id="unitWrap" hidden><input type="checkbox" id="optUnit"> Headings in <span id="unitName">64ths</span></label><span id="runWrap" hidden>Running total <span class="running" id="runTotal">0</span></span></span></div>
+    <div class="track-wrap"><div class="track" id="track"></div></div>
+    <p class="caption" id="caption"></p>
+    <div class="sum" id="sum" aria-live="polite"></div>
+  </section>
+
+  <aside class="steps" aria-label="Steps">
+    <!-- Binary to denary -->
+    <article class="step" id="b1" data-mode="b2d">
+      <header><span class="num">1</span><h3>Work out the exponent</h3><span class="res" id="b1res"></span></header>
+      <div class="body">
+        <p>The exponent is two's complement, so its leftmost bit has a <b>negative</b> place value.</p>
+        <div class="answer">
+          <label for="expIn">Exponent =</label>
+          <input id="expIn" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn" id="b1check">Check</button>
+        </div>
+        <div class="aux">
+          <button type="button" class="link" id="b1hint">Show exponent headings</button>
+          <button type="button" class="link" id="b1reveal">Reveal</button>
+        </div>
+        <p class="fb" id="b1fb"></p>
+      </div>
+    </article>
+    <article class="step" id="b2" data-mode="b2d">
+      <header><span class="num">2</span><h3>Float the point</h3><span class="res" id="b2res"></span></header>
+      <div class="body">
+        <p id="b2text"></p>
+        <button type="button" class="btn amber" id="floatBtn">Float the point</button>
+        <p class="small" style="margin-top:10px">Positive exponent: the point moves right. Negative exponent: it moves left.</p>
+      </div>
+    </article>
+    <article class="step" id="b3" data-mode="b2d">
+      <header><span class="num">3</span><h3>Add the column headings</h3><span class="res" id="b3res"></span></header>
+      <div class="body">
+        <p>Label each column from the point outwards. The leftmost column is still the sign bit, so its heading is negative.</p>
+        <p class="small">Tip: tick <b>Headings in 64ths</b> (or whatever the smallest column is) above the grid to put every heading over the same denominator. Then you only add whole numbers.</p>
+        <button type="button" class="btn" id="headBtn">Show column headings</button>
+      </div>
+    </article>
+    <article class="step" id="b4" data-mode="b2d">
+      <header><span class="num">4</span><h3>Work out the value</h3><span class="res" id="b4res"></span></header>
+      <div class="body">
+        <p>Add up the headings of every column holding a 1. Answer as a fraction or mixed number, such as <code>6 1/2</code> or <code>-5/32</code>. Leave a space in a mixed number.</p>
+        <div class="answer">
+          <label for="valIn">Value =</label>
+          <input id="valIn" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn" id="b4check">Check</button>
+        </div>
+        <div class="aux">
+          <button type="button" class="link" id="b4reveal">Show the working</button>
+        </div>
+        <p class="fb" id="b4fb"></p>
+      </div>
+    </article>
+
+    <!-- Denary to binary -->
+    <article class="step" id="d1" data-mode="d2b">
+      <header><span class="num">1</span><h3>Write it in fixed-point binary</h3><span class="res" id="d1res"></span></header>
+      <div class="body">
+        <p>Click the bits in the grid to build the value. The leftmost column is negative, so negative numbers start with a 1.</p>
+        <button type="button" class="btn" id="d1check">Check</button>
+        <div class="aux">
+          <button type="button" class="link" id="d1reveal">Reveal</button>
+        </div>
+        <label class="check-row"><input type="checkbox" id="optRun"> Show running total</label>
+        <p class="fb" id="d1fb"></p>
+      </div>
+    </article>
+    <article class="step" id="d2" data-mode="d2b">
+      <header><span class="num">2</span><h3>Normalise</h3><span class="res" id="d2res"></span></header>
+      <div class="body">
+        <p id="d2intro"></p>
+        <button type="button" class="btn" id="d2scan">Scan for 01</button>
+        <button type="button" class="btn amber" id="d2float" hidden>Float the point</button>
+        <div id="d2ask" hidden>
+          <p id="d2text" style="margin-top:12px"></p>
+          <div class="answer">
+            <label for="d2In">Exponent =</label>
+            <input id="d2In" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn" id="d2check">Check</button>
+          </div>
+          <div class="aux"><button type="button" class="link" id="d2reveal">Reveal</button></div>
+        </div>
+        <p class="fb" id="d2fb"></p>
+      </div>
+    </article>
+    <article class="step" id="d3" data-mode="d2b">
+      <header><span class="num">3</span><h3>Fill in the register</h3><span class="res" id="d3res"></span></header>
+      <div class="body">
+        <p>Click the register bits above. The mantissa is the outlined bits. Write the exponent in two's complement.</p>
+        <button type="button" class="btn" id="d3check">Check</button>
+        <div class="aux">
+          <button type="button" class="link" id="d3hint">Show exponent headings</button>
+          <button type="button" class="link" id="d3reveal">Reveal</button>
+        </div>
+        <p class="fb" id="d3fb"></p>
+      </div>
+    </article>
+
+    <article class="finish" id="finish" hidden>
+      <p id="finishText"></p>
+      <button type="button" class="btn amber big" id="nextBtn">Next question</button>
+    </article>
+  </aside>
+</main>
+<p class="foot">Mantissa and exponent are both two's complement. The binary point starts just after the mantissa's sign bit; a normalised mantissa starts 01 (positive) or 10 (negative).</p>
+
+<script>
+(function () {
+  'use strict';
+
+  const FORMATS = [[4, 4], [5, 3], [6, 3], [6, 4], [5, 5], [7, 4], [8, 4], [6, 6], [7, 5], [8, 3]];
+  const MINUS = '−';
+  let reducedMotion = false;
+  /* The floating point animation is the teaching content, so it always plays,
+     even where the computer asks for reduced motion (common on school PCs). */
+
+  const S = {
+    mode: 'b2d',
+    M: 4, E: 4,
+    mant: [], expBits: [],
+    e: 0, m: 0, value: 0,
+    leftPad: 0, rightPad: 0, cols: [], P: 1,
+    step: 1, clean: true, finished: false, busy: false,
+    colEls: [], plateMEls: [], plateEEls: [], pt: null,
+    userFixed: [], userM: [], userE: [],
+    expHeadsShown: false,
+    timers: [],
+    raf: 0,
+    gen: 0,
+    svg: null,
+    scanner: null,
+    unitMode: false, headsShown: false, workingShown: false,
+    score: 0, total: 0, streak: 0
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function pow2(n) { return Math.pow(2, n); }
+
+  function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+  function later(fn, ms) { S.timers.push(setTimeout(fn, ms)); }
+
+  function clearTimers() {
+    let i;
+    for (i = 0; i < S.timers.length; i++) { clearTimeout(S.timers[i]); }
+    S.timers = [];
+    if (S.raf) { cancelAnimationFrame(S.raf); S.raf = 0; }
+    S.gen++;
+  }
+
+  function twos(bits) {
+    let v = 0;
+    let i;
+    for (i = 0; i < bits.length; i++) { v = v * 2 + bits[i]; }
+    if (bits[0] === 1) { v -= pow2(bits.length); }
+    return v;
+  }
+
+  function toTwos(v, n) {
+    const u = v < 0 ? v + pow2(n) : v;
+    const out = [];
+    let i;
+    for (i = n - 1; i >= 0; i--) { out.push(Math.floor(u / pow2(i)) % 2); }
+    return out;
+  }
+
+  function isNormal(bits) { return bits[0] !== bits[1]; }
+
+  function numText(v) {
+    if (Math.abs(v) < 1e-12) { return '0'; }
+    return String(v).replace('-', MINUS);
+  }
+
+  function signedText(v) { return v > 0 ? '+' + v : numText(v); }
+
+  /* exact value as sign, whole part and a fraction over a power of 2 */
+  function fracParts(v) {
+    const a = Math.abs(v);
+    let den = 1;
+    let total;
+    let whole;
+    while (den < pow2(30) && Math.abs(a * den - Math.round(a * den)) > 1e-9) { den *= 2; }
+    total = Math.round(a * den);
+    whole = Math.floor(total / den);
+    return { neg: v < 0 && total > 0, whole: whole, num: total - whole * den, den: den };
+  }
+
+  /* 6.5 -> 6 1/2 (stacked), -0.15625 -> -5/32, 3 -> 3 */
+  function valueHTML(v) {
+    const f = fracParts(v);
+    const s = f.neg ? MINUS : '';
+    if (f.num === 0) { return s + f.whole; }
+    return '<span class="val">' + s + (f.whole ? f.whole + ' ' : '') +
+      '<span class="frac"><span>' + f.num + '</span><span>' + f.den + '</span></span></span>';
+  }
+
+  /* plain-text version for inputs and messages */
+  function valueText(v) {
+    const f = fracParts(v);
+    const s = f.neg ? MINUS : '';
+    if (f.num === 0) { return s + f.whole; }
+    return s + (f.whole ? f.whole + ' ' : '') + f.num + '/' + f.den;
+  }
+
+  function weightHTML(p, neg) {
+    const s = neg ? MINUS : '';
+    if (p >= 0) { return s + pow2(p); }
+    return s + '<span class="frac"><span>1</span><span>' + pow2(-p) + '</span></span>';
+  }
+
+  function bitString(bits) { return bits.join(''); }
+
+  function mantissaWithPoint(bits) { return bits[0] + '.' + bits.slice(1).join(''); }
+
+  function parseAnswer(raw) {
+    const s = raw.replace(/½/g, ' 1/2').replace(/¼/g, ' 1/4').replace(/¾/g, ' 3/4')
+      .replace(/⅛/g, ' 1/8').replace(/⅜/g, ' 3/8').replace(/⅝/g, ' 5/8').replace(/⅞/g, ' 7/8')
+      .trim().replace(/^([+\-−])\s+/, '$1').replace(/−/g, '-').replace(/\s+/g, ' ');
+    let m;
+    let d;
+    let v;
+    if (s === '') { return null; }
+    m = s.match(/^([+-]?)(\d+) (\d+)\/(\d+)$/);
+    if (m) {
+      d = parseInt(m[4], 10);
+      if (!d) { return null; }
+      v = parseInt(m[2], 10) + parseInt(m[3], 10) / d;
+      return m[1] === '-' ? -v : v;
+    }
+    m = s.match(/^([+-]?)(\d+)\/(\d+)$/);
+    if (m) {
+      d = parseInt(m[3], 10);
+      if (!d) { return null; }
+      v = parseInt(m[2], 10) / d;
+      return m[1] === '-' ? -v : v;
+    }
+    if (/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) { return parseFloat(s); }
+    return null;
+  }
+
+  function parseInteger(raw) {
+    const s = raw.trim().replace(/−/g, '-');
+    if (!/^[+-]?\d+$/.test(s)) { return null; }
+    return parseInt(s, 10);
+  }
+
+  /* ---------- question generation ---------- */
+
+  function pickFormat() {
+    const v = $('fmt').value;
+    let parts;
+    if (v === 'any') { return FORMATS[randInt(0, FORMATS.length - 1)]; }
+    parts = v.split('+');
+    return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
+  }
+
+  function randomQuestion(forceNormal) {
+    const f = pickFormat();
+    const M = f[0];
+    const E = f[1];
+    const normal = forceNormal || $('optNorm').checked;
+    const negM = $('optNegM').checked;
+    const negE = $('optNegE').checked;
+    let mant;
+    let guard = 0;
+    let sign;
+    let i;
+    let minE;
+    let maxE;
+    let e;
+    do {
+      mant = [];
+      sign = (negM && Math.random() < 0.45) ? 1 : 0;
+      mant.push(sign);
+      if (normal) {
+        mant.push(1 - sign);
+        for (i = 2; i < M; i++) { mant.push(randInt(0, 1)); }
+      } else {
+        for (i = 1; i < M; i++) { mant.push(randInt(0, 1)); }
+      }
+      guard++;
+    } while (guard < 60 && (twos(mant) === 0 || (!normal && isNormal(mant) && Math.random() < 0.6)));
+
+    minE = negE ? Math.max(-pow2(E - 1), M >= 7 ? -2 : -3) : 0;
+    maxE = Math.min(pow2(E - 1) - 1, M);
+    if (negE && Math.random() < 0.3) { e = randInt(minE, -1); }
+    else { e = randInt(0, maxE); }
+    if (forceNormal) {
+      /* keep denary targets friendly: no more than 5 fractional bits */
+      for (i = 2; i < M; i++) {
+        if (e - i < -5) { mant[i] = 0; }
+      }
+    }
+    return { M: M, E: E, mant: mant, expBits: toTwos(e, E) };
+  }
+
+  function encodeValue(v, M, E) {
+    let e;
+    let m;
+    const lo = -pow2(E - 1);
+    const hi = pow2(E - 1) - 1;
+    for (e = lo; e <= hi; e++) {
+      m = v * pow2(M - 1 - e);
+      if (Math.abs(m - Math.round(m)) < 1e-9) {
+        m = Math.round(m);
+        if ((m >= pow2(M - 2) && m <= pow2(M - 1) - 1) || (m >= -pow2(M - 1) && m <= -pow2(M - 2) - 1)) {
+          return { M: M, E: E, mant: toTwos(m, M), expBits: toTwos(e, E) };
+        }
+      }
+    }
+    return null;
+  }
+
+  function columnsNeeded(q) {
+    const e = twos(q.expBits);
+    return Math.max(0, -e) + q.M + Math.max(0, e + 1 - q.M);
+  }
+
+  /* ---------- building blocks ---------- */
+
+  function setBit(b, v) {
+    b.textContent = (v === null || v === undefined) ? '?' : String(v);
+    b.classList.toggle('one', v === 1);
+    b.classList.toggle('q', v === null || v === undefined);
+  }
+
+  function makeCol(v, toggle) {
+    const c = document.createElement('div');
+    const h = document.createElement('div');
+    const b = document.createElement(toggle ? 'button' : 'div');
+    const hop = document.createElement('div');
+    const con = document.createElement('div');
+    c.className = 'col';
+    h.className = 'head';
+    b.className = 'bit';
+    if (toggle) { b.type = 'button'; }
+    hop.className = 'hop';
+    con.className = 'contrib';
+    setBit(b, v);
+    c.appendChild(h);
+    c.appendChild(b);
+    c.appendChild(hop);
+    c.appendChild(con);
+    c.headEl = h;
+    c.bitEl = b;
+    c.hopEl = hop;
+    c.conEl = con;
+    return c;
+  }
+
+  function makePoint(kind) {
+    const p = document.createElement('div');
+    const dot = document.createElement('span');
+    p.className = 'pt' + (kind ? ' ' + kind : '');
+    dot.className = 'dot';
+    p.appendChild(dot);
+    if (!kind) {
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      p.appendChild(badge);
+      p.badgeEl = badge;
+    }
+    return p;
+  }
+
+  function colWeight(i) {
+    return i === 0 ? -pow2(S.P - 1) : pow2(S.P - 1 - i);
+  }
+
+  function expWeight(j) {
+    return j === 0 ? -pow2(S.E - 1) : pow2(S.E - 1 - j);
+  }
+
+  /* ---------- loading a question ---------- */
+
+  function loadQuestion(q) {
+    let i;
+    clearTimers();
+    S.M = q.M;
+    S.E = q.E;
+    S.mant = q.mant.slice();
+    S.expBits = q.expBits.slice();
+    S.e = twos(S.expBits);
+    S.m = twos(S.mant);
+    S.value = S.m * pow2(S.e - (S.M - 1));
+    S.leftPad = Math.max(0, -S.e);
+    S.rightPad = Math.max(0, S.e + 1 - S.M);
+    S.cols = [];
+    for (i = 0; i < S.leftPad; i++) { S.cols.push(S.mant[0]); }
+    for (i = 0; i < S.M; i++) { S.cols.push(S.mant[i]); }
+    for (i = 0; i < S.rightPad; i++) { S.cols.push(0); }
+    S.P = S.leftPad + 1 + S.e;
+    S.clean = true;
+    S.finished = false;
+    S.busy = false;
+    S.expHeadsShown = false;
+    S.headsShown = false;
+    S.workingShown = false;
+    S.userFixed = [];
+    for (i = 0; i < S.cols.length; i++) { S.userFixed.push(0); }
+    S.userM = [];
+    for (i = 0; i < S.M; i++) { S.userM.push(0); }
+    S.userE = [];
+    for (i = 0; i < S.E; i++) { S.userE.push(0); }
+
+    resetStepUI();
+    renderPrompt();
+    $('sum').innerHTML = '';
+    $('eWork').textContent = '';
+    $('finish').hidden = true;
+    $('unitWrap').hidden = true;
+
+    if (S.mode === 'b2d') {
+      S.step = 1;
+      renderPlate();
+      renderTrack(false, false, false);
+      $('trackTitle').textContent = 'Mantissa, point after the sign bit';
+      $('caption').innerHTML = 'The binary point starts just after the sign bit. Work out the exponent first to find out where it floats to.';
+      setStep(1);
+    } else {
+      S.step = 1;
+      renderPlate();
+      renderTrack(true, false, true);
+      showHeadings(false);
+      $('trackTitle').textContent = 'Fixed-point binary';
+      $('caption').innerHTML = 'Click a bit to switch it between 0 and 1. Aim for <b>' + valueHTML(S.value) + '</b>.';
+      updateRunning();
+      setStep(1);
+    }
+  }
+
+  function resetStepUI() {
+    const ids = ['b1', 'b2', 'b3', 'b4', 'd1', 'd2', 'd3'];
+    let i;
+    for (i = 0; i < ids.length; i++) {
+      $(ids[i] + 'res').textContent = '';
+      const fb = $(ids[i]).querySelector('.fb');
+      if (fb) { setFb(fb, '', ''); }
+      $(ids[i]).hidden = $(ids[i]).getAttribute('data-mode') !== S.mode;
+    }
+    $('expIn').value = '';
+    $('valIn').value = '';
+    $('d2In').value = '';
+    $('d2ask').hidden = true;
+    $('d2float').hidden = true;
+    $('d2scan').hidden = false;
+    $('d2scan').textContent = 'Scan for ' + (S.value < 0 ? '10' : '01');
+    $('d2intro').innerHTML = S.value < 0
+      ? 'Scan the bits from left to right for the first <b>10</b>, because the number is negative. The point goes between the 1 and the 0.'
+      : 'Scan the bits from left to right for the first <b>01</b>, because the number is positive. The point goes between the 0 and the 1.';
+  }
+
+  function setFb(elOrId, cls, html) {
+    const fb = typeof elOrId === 'string' ? $(elOrId) : elOrId;
+    fb.className = 'fb' + (cls ? ' ' + cls : '');
+    fb.innerHTML = html;
+  }
+
+  function renderPrompt() {
+    const meta = $('meta');
+    const items = [];
+    let i;
+    if (S.mode === 'b2d') {
+      $('prompt').innerHTML = 'What denary value does this floating point number represent?';
+      items.push(['', S.M + '-bit mantissa']);
+      items.push(['', S.E + '-bit exponent']);
+      items.push(isNormal(S.mant) ? ['yes', 'Normalised'] : ['no', 'Not normalised']);
+    } else {
+      $('prompt').innerHTML = 'Represent <span class="target">' + valueHTML(S.value) + '</span> as a normalised floating point number.';
+      items.push(['', S.M + '-bit mantissa']);
+      items.push(['', S.E + '-bit exponent']);
+      items.push(['', 'Both two’s complement']);
+    }
+    meta.innerHTML = '';
+    for (i = 0; i < items.length; i++) {
+      const li = document.createElement('li');
+      li.className = 'chip' + (items[i][0] ? ' ' + items[i][0] : '');
+      li.textContent = items[i][1];
+      meta.appendChild(li);
+    }
+    $('mLabel').textContent = 'Mantissa · ' + S.M + ' bits';
+    $('eLabel').textContent = 'Exponent · ' + S.E + ' bits';
+  }
+
+  function bindPlateToggle(btn, arr, j) {
+    btn.addEventListener('click', function () {
+      if (S.mode !== 'd2b' || S.step !== 3 || S.finished) { return; }
+      arr[j] = arr[j] === 1 ? 0 : 1;
+      setBit(btn, arr[j]);
+    });
+  }
+
+  function renderPlate() {
+    const pm = $('plateM');
+    const pe = $('plateE');
+    const editable = S.mode === 'd2b' && S.step === 3 && !S.finished;
+    let j;
+    let v;
+    let c;
+    pm.innerHTML = '';
+    pe.innerHTML = '';
+    S.plateMEls = [];
+    S.plateEEls = [];
+    for (j = 0; j < S.M; j++) {
+      if (S.mode === 'b2d') { v = S.mant[j]; }
+      else { v = S.step >= 3 ? S.userM[j] : null; }
+      c = makeCol(v, editable);
+      if (j === 0) {
+        c.classList.add('sign');
+        c.headEl.textContent = 'sign';
+        c.headEl.classList.add('show', 'tag');
+      }
+      if (editable) { bindPlateToggle(c.bitEl, S.userM, j); }
+      pm.appendChild(c);
+      S.plateMEls.push(c);
+      if (j === 0) { pm.appendChild(makePoint('static')); }
+    }
+    for (j = 0; j < S.E; j++) {
+      if (S.mode === 'b2d') { v = S.expBits[j]; }
+      else { v = S.step >= 3 ? S.userE[j] : null; }
+      c = makeCol(v, editable);
+      if (j === 0) { c.classList.add('sign'); }
+      c.headEl.innerHTML = weightHTML(S.E - 1 - j, j === 0);
+      if (S.expHeadsShown) { c.headEl.classList.add('show'); }
+      if (editable) { bindPlateToggle(c.bitEl, S.userE, j); }
+      pe.appendChild(c);
+      S.plateEEls.push(c);
+    }
+  }
+
+  function showExpHeadings() {
+    let j;
+    S.expHeadsShown = true;
+    for (j = 0; j < S.plateEEls.length; j++) {
+      S.plateEEls[j].headEl.style.transitionDelay = (reducedMotion ? 0 : j * 80) + 'ms';
+      S.plateEEls[j].headEl.classList.add('show');
+    }
+  }
+
+  function expWorking() {
+    const terms = [];
+    let j;
+    for (j = 0; j < S.E; j++) {
+      if (S.expBits[j] === 1) { terms.push(numText(expWeight(j))); }
+    }
+    if (terms.length === 0) { return '0 = 0'; }
+    return terms.join(' + ') + ' = ' + signedText(S.e);
+  }
+
+  function bindFixedToggle(btn, i) {
+    btn.addEventListener('click', function () {
+      if (S.mode !== 'd2b' || S.step !== 1 || S.busy) { return; }
+      S.userFixed[i] = S.userFixed[i] === 1 ? 0 : 1;
+      setBit(btn, S.userFixed[i]);
+      updateRunning();
+    });
+  }
+
+  /* includePads: build pad columns; veil: hide them until the point passes; toggles: d2b editing */
+  function renderTrack(includePads, veil, toggles) {
+    const track = $('track');
+    let i;
+    let c;
+    let isPad;
+    let v;
+    track.innerHTML = '';
+    S.colEls = [];
+    S.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    S.svg.setAttribute('class', 'trails');
+    S.svg.setAttribute('aria-hidden', 'true');
+    track.appendChild(S.svg);
+    for (i = 0; i < S.cols.length; i++) {
+      isPad = i < S.leftPad || i >= S.leftPad + S.M;
+      if (isPad && !includePads) { S.colEls.push(null); continue; }
+      v = toggles ? S.userFixed[i] : S.cols[i];
+      c = makeCol(v, toggles);
+      if (i === 0 || (!includePads && i === S.leftPad)) { c.classList.add('sign'); }
+      if (isPad) {
+        c.classList.add('pad');
+        if (veil) { c.classList.add('veiled'); }
+      }
+      if (toggles) { bindFixedToggle(c.bitEl, i); }
+      track.appendChild(c);
+      S.colEls.push(c);
+    }
+    S.pt = makePoint('');
+    insertAtBoundary(S.pt, S.mode === 'b2d' ? S.leftPad + 1 : S.P);
+  }
+
+  function insertAtBoundary(node, k) {
+    const track = $('track');
+    let ref = null;
+    let i;
+    for (i = k; i < S.colEls.length; i++) {
+      if (S.colEls[i]) { ref = S.colEls[i]; break; }
+    }
+    if (ref) { track.insertBefore(node, ref); }
+    else { track.appendChild(node); }
+  }
+
+  function hopDuration() {
+    const v = parseInt($('speed').value, 10);
+    return isNaN(v) ? 500 : v;
+  }
+
+  function easeInOut(t) {
+    /* gentle sine ease: no sudden burst of speed mid-hop */
+    return -(Math.cos(Math.PI * t) - 1) / 2;
+  }
+
+  function makeTrail() {
+    const ns = 'http://www.w3.org/2000/svg';
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('class', 'trail');
+    S.svg.appendChild(path);
+    return path;
+  }
+
+  /* x position (within the track) of the gap before column k */
+  function boundaryX(k, tr) {
+    const n = S.colEls.length;
+    const a = (k - 1 >= 0 && S.colEls[k - 1]) ? S.colEls[k - 1].getBoundingClientRect() : null;
+    const b = (k < n && S.colEls[k]) ? S.colEls[k].getBoundingClientRect() : null;
+    const any = S.colEls[k] || S.colEls[k - 1];
+    const gap = any ? parseFloat(window.getComputedStyle(any).marginRight) * 2 : 12;
+    if (a && b) { return (a.right + b.left) / 2 - tr.left; }
+    if (a) { return a.right + gap / 2 - tr.left; }
+    return b.left - gap / 2 - tr.left;
+  }
+
+  /*
+    The point glides as one continuous animation: a half-moon under each digit,
+    a rest at each position, and the hop number appearing as it lands.
+  */
+  function floatPoint(from, to, done) {
+    const dir = to > from ? 1 : -1;
+    const n = Math.abs(to - from);
+    const gen = S.gen;
+    const track = $('track');
+    const D = hopDuration();
+    const P = Math.round(D * 0.3);
+    const lead = 500;
+    const xs = [];
+    const trails = [];
+    let tr;
+    let base;
+    let dotRect;
+    let flyer;
+    let badge;
+    let badgeText;
+    let total;
+    let started = -1;
+    let marked = 0;
+    let start = null;
+    let i;
+
+    S.busy = true;
+    if (n === 0) {
+      S.busy = false;
+      later(done, 150);
+      return;
+    }
+    insertAtBoundary(makePoint('ghost'), from);
+    tr = track.getBoundingClientRect();
+    for (i = 0; i <= n; i++) { xs.push(boundaryX(from + i * dir, tr)); }
+    dotRect = S.pt.querySelector('.dot').getBoundingClientRect();
+    base = dotRect.top + dotRect.height / 2 - tr.top;
+    S.pt.style.visibility = 'hidden';
+
+    flyer = document.createElement('div');
+    flyer.className = 'flyer';
+    flyer.innerHTML = '<span class="dot"></span>';
+    badge = document.createElement('div');
+    badge.className = 'fly-badge';
+    badge.innerHTML = '<span></span>';
+    badgeText = badge.firstChild;
+    track.appendChild(flyer);
+    track.appendChild(badge);
+    for (i = 0; i < n; i++) { trails.push(makeTrail()); }
+    total = lead + n * D + (n - 1) * P;
+
+    function place(x, y) {
+      flyer.style.transform = 'translate3d(' + x.toFixed(2) + 'px, ' + y.toFixed(2) + 'px, 0)';
+      badge.style.transform = 'translate3d(' + x.toFixed(2) + 'px, 0, 0)';
+    }
+
+    function arcPoint(h, e) {
+      const x1 = xs[h];
+      const x2 = xs[h + 1];
+      const cx = (x1 + x2) / 2;
+      const rad = Math.abs(x2 - x1) / 2;
+      return [cx + (x1 - cx) * Math.cos(Math.PI * e), base + rad * Math.sin(Math.PI * e)];
+    }
+
+    function drawTrail(h, e) {
+      const steps = Math.max(2, Math.ceil(36 * e));
+      let d = 'M ' + xs[h].toFixed(2) + ' ' + base.toFixed(2);
+      let k;
+      let q;
+      for (k = 1; k <= steps; k++) {
+        q = arcPoint(h, e * k / steps);
+        d += ' L ' + q[0].toFixed(2) + ' ' + q[1].toFixed(2);
+      }
+      trails[h].setAttribute('d', d);
+    }
+
+    function startHop(h) {
+      const next = from + (h + 1) * dir;
+      const reveal = S.colEls[next - 1];
+      if (reveal && reveal.classList.contains('veiled')) { reveal.classList.remove('veiled'); }
+    }
+
+    function landHop(h) {
+      const count = h + 1;
+      const passed = dir > 0 ? from + h : from - h - 1;
+      drawTrail(h, 1);
+      if (S.colEls[passed]) {
+        S.colEls[passed].hopEl.innerHTML = '<span>' + count + '</span>';
+        S.colEls[passed].hopEl.classList.add('on');
+      }
+      badgeText.textContent = dir > 0 ? count + ' →' : '← ' + count;
+      badge.classList.add('on');
+      flyer.classList.remove('land');
+      void flyer.offsetWidth;
+      flyer.classList.add('land');
+    }
+
+    function finish() {
+      while (marked < n) { landHop(marked); marked++; }
+      flyer.remove();
+      badge.remove();
+      insertAtBoundary(S.pt, to);
+      S.pt.style.transform = '';
+      S.pt.style.visibility = '';
+      S.pt.badgeEl.textContent = badgeText.textContent;
+      S.pt.badgeEl.classList.add('on');
+      S.busy = false;
+      later(done, reducedMotion ? 0 : 400);
+    }
+
+    place(xs[0], base);
+
+    if (reducedMotion) {
+      for (i = 0; i < n; i++) { startHop(i); }
+      finish();
+      return;
+    }
+
+    function frame(now) {
+      let t;
+      let h;
+      let within;
+      let e;
+      let q;
+      if (gen !== S.gen) { return; }
+      if (start === null) { start = now; }
+      if (now - start >= total) { finish(); return; }
+      t = now - start - lead;
+      if (t < 0) { S.raf = requestAnimationFrame(frame); return; }
+      h = Math.min(n - 1, Math.floor(t / (D + P)));
+      within = t - h * (D + P);
+      while (started < h) { started++; startHop(started); }
+      while (marked < h) { landHop(marked); marked++; }
+      if (within >= D) {
+        if (marked === h) { landHop(h); marked++; }
+        e = 1;
+      } else {
+        e = easeInOut(within / D);
+        drawTrail(h, e);
+      }
+      q = arcPoint(h, e);
+      place(q[0], q[1]);
+      S.raf = requestAnimationFrame(frame);
+    }
+    S.raf = requestAnimationFrame(frame);
+  }
+
+  /* number of columns after the point, and the matching common denominator */
+  function fracBits() { return Math.max(0, S.cols.length - S.P); }
+  function unitDen() { return pow2(fracBits()); }
+
+  function denName(d) {
+    if (d === 2) { return 'halves'; }
+    if (d === 4) { return 'quarters'; }
+    if (d % 100 === 32 || d === 32) { return d + 'nds'; }
+    return d + 'ths';
+  }
+
+  function stackedHTML(num, den) {
+    return '<span class="frac"><span>' + num + '</span><span>' + den + '</span></span>';
+  }
+
+  /* heading for column i: either its place value, or that value over the smallest column's denominator */
+  function isFracCol(i) { return S.P - 1 - i < 0; }
+
+  function headHTML(i) {
+    if (S.unitMode && isFracCol(i)) {
+      return stackedHTML(colWeight(i) * unitDen(), unitDen());
+    }
+    return weightHTML(S.P - 1 - i, i === 0);
+  }
+
+  function showHeadings(stagger) {
+    let i;
+    S.headsShown = true;
+    for (i = 0; i < S.colEls.length; i++) {
+      const c = S.colEls[i];
+      if (!c) { continue; }
+      c.headEl.innerHTML = headHTML(i);
+      c.headEl.style.transitionDelay = (stagger && !reducedMotion ? i * 90 : 0) + 'ms';
+      c.headEl.classList.add('show');
+    }
+    updateUnitToggle();
+  }
+
+  function sumHTML() {
+    const parts = [];
+    let wholeSum = 0;
+    let fracSum = 0;
+    let fracCount = 0;
+    let numTotal = 0;
+    let html;
+    let k;
+    const den = unitDen();
+    for (k = 0; k < S.cols.length; k++) {
+      if (S.cols[k] !== 1) { continue; }
+      numTotal += colWeight(k) * den;
+      if (S.P - 1 - k >= 0) { wholeSum += colWeight(k); }
+      else { fracSum += colWeight(k); fracCount++; }
+      if (S.unitMode && fracBits() > 0) {
+        parts.push(k === 0 ? '<span class="neg">' + MINUS + Math.abs(colWeight(k) * den) + '</span>' : String(colWeight(k) * den));
+      } else {
+        parts.push(k === 0 ? '<span class="neg">' + headHTML(k) + '</span>' : headHTML(k));
+      }
+    }
+    if (S.unitMode && fracCount > 0) {
+      /* whole-number columns as they are, fraction columns as numerators over one denominator */
+      const wholeParts = [];
+      const nums = [];
+      let fracNum = 0;
+      for (k = 0; k < S.cols.length; k++) {
+        if (S.cols[k] !== 1) { continue; }
+        if (isFracCol(k)) {
+          nums.push(String(colWeight(k) * den));
+          fracNum += colWeight(k) * den;
+        } else {
+          wholeParts.push(k === 0 ? '<span class="neg">' + weightHTML(S.P - 1 - k, true) + '</span>' : weightHTML(S.P - 1 - k, false));
+        }
+      }
+      html = '';
+      if (wholeParts.length) { html += wholeParts.join(' + ') + ' + '; }
+      if (nums.length === 1) {
+        html += stackedHTML(fracNum, den);
+      } else {
+        html += '<span class="nowrap">(' + nums.join(' + ') + ') \u00f7 ' + den + '</span>';
+      }
+      html += ' <span class="nowrap">= ' + (wholeSum !== 0 ? valueHTML(wholeSum) + ' + ' : '') + stackedHTML(fracNum, den) + '</span>';
+      if (wholeSum !== 0 || fracNum % 2 === 0) {
+        html += ' <span class="eq nowrap">= ' + valueHTML(S.value) + '</span>';
+      }
+      return html;
+    }
+    html = parts.join(' + ');
+    if (wholeSum !== 0 && fracSum !== 0 && fracCount >= 2) {
+      html += ' <span class="nowrap">= ' + valueHTML(wholeSum) + ' + ' + valueHTML(fracSum) + '</span>';
+    }
+    return html + ' <span class="eq nowrap">= ' + valueHTML(S.value) + '</span>';
+  }
+
+  function showWorking() {
+    let i;
+    let delay = 0;
+    S.workingShown = true;
+    for (i = 0; i < S.colEls.length; i++) {
+      const c = S.colEls[i];
+      if (!c) { continue; }
+      if (S.cols[i] === 1) {
+        c.conEl.innerHTML = headHTML(i);
+        c.conEl.style.transitionDelay = (reducedMotion ? 0 : delay) + 'ms';
+        c.conEl.classList.add('show');
+        delay += 110;
+      }
+    }
+    later(function () { $('sum').innerHTML = sumHTML(); }, reducedMotion ? 0 : delay + 200);
+  }
+
+  function updateUnitToggle() {
+    const fb = fracBits();
+    $('unitWrap').hidden = !(S.headsShown && fb > 0);
+    $('unitName').textContent = denName(unitDen());
+  }
+
+  /* switch heading style without re-running any animation */
+  function refreshHeadings() {
+    let i;
+    for (i = 0; i < S.colEls.length; i++) {
+      const c = S.colEls[i];
+      if (!c) { continue; }
+      if (S.headsShown) {
+        c.headEl.style.transitionDelay = '0ms';
+        c.headEl.innerHTML = headHTML(i);
+      }
+      if (S.workingShown && S.cols[i] === 1) {
+        c.conEl.style.transitionDelay = '0ms';
+        c.conEl.innerHTML = headHTML(i);
+      }
+    }
+    if (S.workingShown) { $('sum').innerHTML = sumHTML(); }
+  }
+
+  function fixedValue(bits) {
+    let v = 0;
+    let i;
+    for (i = 0; i < bits.length; i++) {
+      if (bits[i] === 1) { v += colWeight(i); }
+    }
+    return v;
+  }
+
+  function updateRunning() {
+    const on = S.mode === 'd2b' && $('optRun').checked && S.step === 1;
+    $('runWrap').hidden = !on;
+    if (on) { $('runTotal').innerHTML = valueHTML(fixedValue(S.userFixed)); }
+  }
+
+  /* ---------- step flow ---------- */
+
+  function stepIds() { return S.mode === 'b2d' ? ['b1', 'b2', 'b3', 'b4'] : ['d1', 'd2', 'd3']; }
+
+  function setStep(n) {
+    const ids = stepIds();
+    let i;
+    let j;
+    S.step = n;
+    for (i = 0; i < ids.length; i++) {
+      const card = $(ids[i]);
+      const ctrls = card.querySelectorAll('input, button');
+      card.classList.toggle('active', i + 1 === n);
+      card.classList.toggle('locked', i + 1 > n);
+      card.classList.toggle('done', i + 1 < n);
+      for (j = 0; j < ctrls.length; j++) { ctrls[j].disabled = (i + 1 !== n); }
+    }
+  }
+
+  function focusSoon(id) {
+    later(function () {
+      const el = $(id);
+      if (el && !el.disabled && window.matchMedia('(min-width: 981px)').matches) { el.focus(); }
+    }, 60);
+  }
+
+  function finishQuestion(correct, html) {
+    S.finished = true;
+    S.total++;
+    if (correct && S.clean) {
+      S.score++;
+      S.streak++;
+    } else {
+      S.streak = 0;
+    }
+    $('scoreVal').textContent = S.score;
+    $('scoreTot').textContent = S.total;
+    $('streakVal').textContent = S.streak;
+    setStep(99);
+    $('finishText').innerHTML = html;
+    $('finish').hidden = false;
+    later(function () { $('nextBtn').focus(); }, 80);
+  }
+
+  /* Binary to denary */
+
+  function b2dExpCorrect(revealed) {
+    $('expIn').value = String(S.e);
+    showExpHeadings();
+    $('eWork').textContent = expWorking();
+    if (revealed) {
+      setFb('b1fb', 'info', 'The exponent is ' + signedText(S.e) + '.');
+    } else {
+      setFb('b1fb', 'good', 'Correct: the exponent is ' + signedText(S.e) + '.');
+    }
+    $('b1res').textContent = signedText(S.e);
+    later(function () {
+      let text;
+      setStep(2);
+      renderTrack(true, true, false);
+      if (S.e > 0) {
+        text = 'The exponent is <b>' + signedText(S.e) + '</b>, so the point floats <b>' + S.e + ' place' + (S.e === 1 ? '' : 's') + ' to the right</b>.';
+      } else if (S.e < 0) {
+        text = 'The exponent is <b>' + signedText(S.e) + '</b>, so the point floats <b>' + (-S.e) + ' place' + (S.e === -1 ? '' : 's') + ' to the left</b>.';
+      } else {
+        text = 'The exponent is <b>0</b>, so the point stays where it is.';
+      }
+      $('b2text').innerHTML = text;
+      focusSoon('floatBtn');
+    }, reducedMotion ? 0 : 700);
+  }
+
+  function b2dCheckExp() {
+    const v = parseInteger($('expIn').value);
+    if (S.step !== 1) { return; }
+    if (v === null) {
+      setFb('b1fb', 'bad', 'Type a whole number, for example 3 or −2.');
+      return;
+    }
+    if (v === S.e) { b2dExpCorrect(false); return; }
+    S.clean = false;
+    if (v === twos([0].concat(S.expBits.slice(1))) && S.expBits[0] === 1) {
+      setFb('b1fb', 'bad', 'Not quite. You have read it as unsigned binary. The leftmost bit is worth ' + numText(expWeight(0)) + '.');
+    } else if (v === -S.e) {
+      setFb('b1fb', 'bad', 'Check the sign. Is the leftmost (negative) bit a 1 or a 0?');
+    } else {
+      setFb('b1fb', 'bad', 'Not quite. Add the place values of the 1 bits, remembering the leftmost is ' + numText(expWeight(0)) + '.');
+    }
+  }
+
+  function b2dFloat() {
+    if (S.step !== 2 || S.busy) { return; }
+    $('floatBtn').disabled = true;
+    floatPoint(S.leftPad + 1, S.leftPad + 1 + S.e, function () {
+      let cap;
+      if (S.e < 0) {
+        cap = 'The new places on the left are copies of the sign bit (<b>' + S.mant[0] + '</b>), so the number keeps its sign.';
+      } else if (S.rightPad > 0) {
+        cap = 'The point went past the end of the mantissa, so the empty place' + (S.rightPad > 1 ? 's are' : ' is') + ' filled with <b>0</b>.';
+      } else if (S.e === 0) {
+        cap = 'With an exponent of 0 the mantissa is already the value: a sign bit then fractions.';
+      } else {
+        cap = 'Bits to the left of the point are now whole numbers. Bits to the right are fractions.';
+      }
+      $('caption').innerHTML = cap;
+      $('trackTitle').textContent = 'After floating the point';
+      $('b2res').textContent = S.e === 0 ? 'stays' : (S.e > 0 ? S.e + ' →' : '← ' + (-S.e));
+      setStep(3);
+      focusSoon('headBtn');
+    });
+  }
+
+  function b2dHeadings() {
+    if (S.step !== 3) { return; }
+    showHeadings(true);
+    $('b3res').textContent = '✓';
+    later(function () {
+      setStep(4);
+      focusSoon('valIn');
+    }, reducedMotion ? 0 : 400);
+  }
+
+  function b2dFinishText() {
+    return 'Mantissa <b>' + mantissaWithPoint(S.mant) + '</b> × 2<sup>' + numText(S.e) + '</sup> = <span class="big-val">' + valueHTML(S.value) + '</span>';
+  }
+
+  function b2dCheckValue() {
+    const v = parseAnswer($('valIn').value);
+    if (S.step !== 4) { return; }
+    if (v === null) {
+      setFb('b4fb', 'bad', 'Type a fraction or mixed number, such as 6 1/2, -5/32 or 3/8.');
+      return;
+    }
+    if (Math.abs(v - S.value) < 1e-9) {
+      setFb('b4fb', 'good', 'Correct!');
+      $('b4res').innerHTML = valueHTML(S.value);
+      showWorking();
+      finishQuestion(true, b2dFinishText());
+      return;
+    }
+    S.clean = false;
+    if (Math.abs(v + S.value) < 1e-9) {
+      setFb('b4fb', 'bad', 'Right size, wrong sign. What is the heading of the leftmost column?');
+    } else {
+      setFb('b4fb', 'bad', 'Not quite. Add the headings of the columns holding a 1. The leftmost heading is negative.');
+    }
+  }
+
+  function b2dReveal() {
+    if (S.step !== 4) { return; }
+    S.clean = false;
+    $('valIn').value = valueText(S.value).replace(MINUS, '-');
+    setFb('b4fb', 'info', 'Here is the working.');
+    $('b4res').innerHTML = valueHTML(S.value);
+    showWorking();
+    finishQuestion(false, b2dFinishText());
+  }
+
+  /* Denary to binary */
+
+  function d2bFixedCorrect(revealed) {
+    let i;
+    for (i = 0; i < S.cols.length; i++) {
+      S.userFixed[i] = S.cols[i];
+      if (S.colEls[i]) {
+        setBit(S.colEls[i].bitEl, S.cols[i]);
+        S.colEls[i].bitEl.disabled = true;
+      }
+    }
+    setFb('d1fb', revealed ? 'info' : 'good', revealed ? 'Here is the fixed-point pattern.' : 'Correct!');
+    $('d1res').textContent = '✓';
+    setStep(2);
+    updateRunning();
+    $('caption').innerHTML = 'That is <b>' + valueHTML(S.value) + '</b> in fixed point. Now normalise it.';
+    focusSoon('d2scan');
+  }
+
+  function d2bCheckFixed() {
+    let same = true;
+    let i;
+    let v;
+    if (S.step !== 1) { return; }
+    for (i = 0; i < S.cols.length; i++) {
+      if (S.userFixed[i] !== S.cols[i]) { same = false; }
+    }
+    if (same) { d2bFixedCorrect(false); return; }
+    S.clean = false;
+    v = fixedValue(S.userFixed);
+    if (Math.abs(v + S.value) < 1e-9) {
+      setFb('d1fb', 'bad', 'Your bits make ' + valueHTML(v) + ': right size, wrong sign.');
+    } else {
+      setFb('d1fb', 'bad', 'Not yet. Your bits make ' + valueHTML(v) + ' and you need ' + valueHTML(S.value) + '.');
+    }
+  }
+
+  /* slide a two-bit window along until it finds the first 01 (positive) or 10 (negative) */
+  function d2bScan() {
+    const track = $('track');
+    const want = S.value < 0 ? '10' : '01';
+    const target = S.leftPad;
+    const gen = S.gen;
+    const D = hopDuration();
+    const dwell = Math.max(450, D);
+    let box;
+    let tag;
+    let g0;
+    let i = 0;
+    if (S.step !== 2 || S.busy) { return; }
+    $('d2scan').disabled = true;
+    S.busy = true;
+
+    function geom(k) {
+      const tr = track.getBoundingClientRect();
+      const a = S.colEls[k].bitEl.getBoundingClientRect();
+      const b = S.colEls[k + 1].bitEl.getBoundingClientRect();
+      return { x: a.left - tr.left - 7, y: a.top - tr.top - 4, w: b.right - a.left + 14, h: a.height + 8 };
+    }
+
+    box = document.createElement('div');
+    box.className = 'scanner';
+    box.innerHTML = '<span class="scan-tag"></span>';
+    tag = box.firstChild;
+    g0 = geom(0);
+    box.style.left = g0.x + 'px';
+    box.style.top = g0.y + 'px';
+    box.style.width = g0.w + 'px';
+    box.style.height = g0.h + 'px';
+    box.style.transition = 'transform ' + D + 'ms ease-in-out, opacity .3s, border-color .25s, box-shadow .25s';
+    track.appendChild(box);
+    S.scanner = box;
+    void box.offsetWidth;
+    box.classList.add('show');
+    $('caption').innerHTML = 'Looking for the first <b>' + want + '</b>…';
+
+    function check() {
+      const pair = String(S.cols[i]) + String(S.cols[i + 1]);
+      if (gen !== S.gen) { return; }
+      if (i === target) {
+        box.classList.add('found');
+        tag.textContent = pair + ' ✓';
+        $('caption').innerHTML = 'Found the first <b>' + want + '</b>. The point goes between these two bits, so the sign bit sits just before it.';
+        S.busy = false;
+        $('d2scan').hidden = true;
+        $('d2float').hidden = false;
+        $('d2float').disabled = false;
+        focusSoon('d2float');
+        return;
+      }
+      box.classList.add('miss');
+      tag.textContent = pair + ' ✗';
+      later(function () {
+        if (gen !== S.gen) { return; }
+        box.classList.remove('miss');
+        tag.textContent = '';
+        i++;
+        box.style.transform = 'translateX(' + (geom(i).x - g0.x) + 'px)';
+        later(check, D + 100);
+      }, dwell);
+    }
+    later(check, 500);
+  }
+
+  function d2bFloat() {
+    if (S.step !== 2 || S.busy) { return; }
+    $('d2float').disabled = true;
+    if (S.scanner) { S.scanner.classList.add('faded'); }
+    floatPoint(S.P, S.leftPad + 1, function () {
+      let i;
+      let moved;
+      for (i = 0; i < S.colEls.length; i++) {
+        const c = S.colEls[i];
+        if (!c) { continue; }
+        c.headEl.classList.add('dim');
+        if (i < S.leftPad || i >= S.leftPad + S.M) { c.classList.add('dropped'); }
+        else { c.classList.add('keep'); }
+      }
+      if (S.e > 0) { moved = 'The point moved <b>' + S.e + ' place' + (S.e === 1 ? '' : 's') + ' left</b>.'; }
+      else if (S.e < 0) { moved = 'The point moved <b>' + (-S.e) + ' place' + (S.e === -1 ? '' : 's') + ' right</b>.'; }
+      else { moved = 'The number was already normalised, so the point did not move.'; }
+      let cap = 'The outlined bits are the ' + S.M + '-bit mantissa.';
+      if (S.leftPad > 0) { cap += ' The faded bits on the left are extra copies of the sign bit, so they can go.'; }
+      if (S.rightPad > 0) { cap += ' The faded 0 on the right adds nothing, so it can go.'; }
+      $('caption').innerHTML = cap;
+      $('trackTitle').textContent = 'Normalised';
+      $('d2text').innerHTML = moved + ' What exponent puts it back where it started?';
+      $('d2float').hidden = true;
+      $('d2ask').hidden = false;
+      $('d2In').disabled = false;
+      $('d2check').disabled = false;
+      $('d2reveal').disabled = false;
+      focusSoon('d2In');
+    });
+  }
+
+  function d2bExpCorrect(revealed) {
+    $('d2In').value = String(S.e);
+    let why;
+    if (S.e > 0) { why = 'Moving the point left divides by 2<sup>' + S.e + '</sup>, so the exponent multiplies it back: ' + signedText(S.e) + '.'; }
+    else if (S.e < 0) { why = 'Moving the point right multiplies by 2<sup>' + (-S.e) + '</sup>, so the exponent must be ' + signedText(S.e) + '.'; }
+    else { why = 'No movement, so the exponent is 0.'; }
+    setFb('d2fb', revealed ? 'info' : 'good', (revealed ? '' : 'Correct. ') + why);
+    $('d2res').textContent = signedText(S.e);
+    setStep(3);
+    renderPlate();
+    focusSoon('d3check');
+  }
+
+  function d2bCheckExp() {
+    const v = parseInteger($('d2In').value);
+    if (S.step !== 2) { return; }
+    if (v === null) { setFb('d2fb', 'bad', 'Type a whole number, for example 3 or −2.'); return; }
+    if (v === S.e) { d2bExpCorrect(false); return; }
+    S.clean = false;
+    if (v === -S.e) {
+      setFb('d2fb', 'bad', 'Right distance, wrong direction. The exponent has to undo the move.');
+    } else {
+      setFb('d2fb', 'bad', 'Count the amber hop numbers under the grid.');
+    }
+  }
+
+  function d2bFinishText() {
+    return '<span class="big-val">' + valueHTML(S.value) + '</span> = ' + mantissaWithPoint(S.mant) + ' × 2<sup>' + numText(S.e) + '</sup><br>Mantissa <b>' + bitString(S.mant) + '</b> · Exponent <b>' + bitString(S.expBits) + '</b>';
+  }
+
+  function d2bCheckRegister() {
+    let mOk = true;
+    let eOk = true;
+    let j;
+    if (S.step !== 3) { return; }
+    for (j = 0; j < S.M; j++) { if (S.userM[j] !== S.mant[j]) { mOk = false; } }
+    for (j = 0; j < S.E; j++) { if (S.userE[j] !== S.expBits[j]) { eOk = false; } }
+    if (mOk && eOk) {
+      setFb('d3fb', 'good', 'Correct! Both parts are right.');
+      $('d3res').textContent = '✓';
+      finishQuestion(true, d2bFinishText());
+      renderPlate();
+      return;
+    }
+    S.clean = false;
+    if (mOk) {
+      setFb('d3fb', 'bad', 'Mantissa is right. The exponent should be ' + signedText(S.e) + ' in ' + S.E + '-bit two’s complement.');
+    } else if (eOk) {
+      setFb('d3fb', 'bad', 'Exponent is right. Copy the outlined mantissa bits exactly.');
+    } else {
+      setFb('d3fb', 'bad', 'Neither part matches yet. Start with the outlined mantissa bits.');
+    }
+  }
+
+  function d2bRevealRegister() {
+    if (S.step !== 3) { return; }
+    S.clean = false;
+    S.userM = S.mant.slice();
+    S.userE = S.expBits.slice();
+    showExpHeadings();
+    setFb('d3fb', 'info', 'Here is the finished register.');
+    $('d3res').textContent = '✓';
+    finishQuestion(false, d2bFinishText());
+    renderPlate();
+  }
+
+  /* ---------- custom questions ---------- */
+
+  function fillBitSelects() {
+    let i;
+    for (i = 3; i <= 10; i++) {
+      const o = document.createElement('option');
+      o.value = String(i);
+      o.textContent = String(i);
+      if (i === 8) { o.selected = true; }
+      $('cMb').appendChild(o);
+    }
+    for (i = 2; i <= 6; i++) {
+      const o2 = document.createElement('option');
+      o2.value = String(i);
+      o2.textContent = String(i);
+      if (i === 4) { o2.selected = true; }
+      $('cEb').appendChild(o2);
+    }
+  }
+
+  function useCustomBinary() {
+    const ms = $('cMant').value.replace(/\s/g, '');
+    const es = $('cExp').value.replace(/\s/g, '');
+    let q;
+    if (!/^[01]{2,10}$/.test(ms)) { $('cMsgB').textContent = 'The mantissa needs 2 to 10 bits, using only 0 and 1.'; return; }
+    if (!/^[01]{2,6}$/.test(es)) { $('cMsgB').textContent = 'The exponent needs 2 to 6 bits, using only 0 and 1.'; return; }
+    q = { M: ms.length, E: es.length, mant: ms.split('').map(Number), expBits: es.split('').map(Number) };
+    if (twos(q.mant) === 0) { $('cMsgB').textContent = 'A mantissa of all 0s is zero whatever the exponent. Try another.'; return; }
+    if (columnsNeeded(q) > 20) { $('cMsgB').textContent = 'That exponent moves the point too far to show on screen. Try a smaller exponent.'; return; }
+    $('cMsgB').textContent = '';
+    loadQuestion(q);
+  }
+
+  function useCustomDenary() {
+    const v = parseAnswer($('cVal').value);
+    const M = parseInt($('cMb').value, 10);
+    const E = parseInt($('cEb').value, 10);
+    let q;
+    if (v === null) { $('cMsgD').textContent = 'Type a number such as 5 3/4, -3/8 or 0.375.'; return; }
+    if (v === 0) { $('cMsgD').textContent = 'Zero cannot be normalised. Try another value.'; return; }
+    q = encodeValue(v, M, E);
+    if (!q) { $('cMsgD').textContent = valueText(v) + ' cannot be stored exactly with a ' + M + '-bit mantissa and ' + E + '-bit exponent. Try more bits or another value.'; return; }
+    if (columnsNeeded(q) > 20) { $('cMsgD').textContent = 'That value needs too many columns to show on screen.'; return; }
+    $('cMsgD').textContent = '';
+    loadQuestion(q);
+  }
+
+  /* ---------- mode, theme, wiring ---------- */
+
+  function newQuestion() {
+    loadQuestion(randomQuestion(S.mode === 'd2b'));
+  }
+
+  function setMode(mode) {
+    if (S.mode === mode) { return; }
+    S.mode = mode;
+    $('modeB2D').setAttribute('aria-selected', mode === 'b2d' ? 'true' : 'false');
+    $('modeD2B').setAttribute('aria-selected', mode === 'd2b' ? 'true' : 'false');
+    $('customB2D').hidden = mode !== 'b2d';
+    $('customD2B').hidden = mode !== 'd2b';
+    $('optNorm').disabled = mode === 'd2b';
+    $('normLabel').classList.toggle('off', mode === 'd2b');
+    $('normLabel').title = mode === 'd2b' ? 'Denary → binary questions are always normalised' : '';
+    newQuestion();
+  }
+
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    $('themeBtn').setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    $('themeBtn').innerHTML = t === 'dark'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>';
+  }
+
+  function onEnter(id, fn) {
+    $(id).addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); fn(); }
+    });
+  }
+
+  function init() {
+    setTheme('light');
+    fillBitSelects();
+
+    $('themeBtn').addEventListener('click', function () {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+    $('modeB2D').addEventListener('click', function () { setMode('b2d'); });
+    $('modeD2B').addEventListener('click', function () { setMode('d2b'); });
+    $('newBtn').addEventListener('click', newQuestion);
+    $('nextBtn').addEventListener('click', newQuestion);
+    $('fmt').addEventListener('change', newQuestion);
+    $('customBtn').addEventListener('click', function () {
+      const panel = $('customPanel');
+      panel.hidden = !panel.hidden;
+      $('customBtn').setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+      if (!panel.hidden) { (S.mode === 'b2d' ? $('cMant') : $('cVal')).focus(); }
+    });
+    $('cGoB').addEventListener('click', useCustomBinary);
+    $('cGoD').addEventListener('click', useCustomDenary);
+    onEnter('cMant', useCustomBinary);
+    onEnter('cExp', useCustomBinary);
+    onEnter('cVal', useCustomDenary);
+
+    $('b1check').addEventListener('click', b2dCheckExp);
+    onEnter('expIn', b2dCheckExp);
+    $('b1hint').addEventListener('click', function () { showExpHeadings(); });
+    $('b1reveal').addEventListener('click', function () {
+      if (S.step !== 1) { return; }
+      S.clean = false;
+      b2dExpCorrect(true);
+    });
+    $('floatBtn').addEventListener('click', b2dFloat);
+    $('headBtn').addEventListener('click', b2dHeadings);
+    $('b4check').addEventListener('click', b2dCheckValue);
+    onEnter('valIn', b2dCheckValue);
+    $('b4reveal').addEventListener('click', b2dReveal);
+
+    $('d1check').addEventListener('click', d2bCheckFixed);
+    $('d1reveal').addEventListener('click', function () {
+      if (S.step !== 1) { return; }
+      S.clean = false;
+      d2bFixedCorrect(true);
+    });
+    $('optRun').addEventListener('change', updateRunning);
+    $('optUnit').addEventListener('change', function () {
+      S.unitMode = $('optUnit').checked;
+      refreshHeadings();
+    });
+    $('d2scan').addEventListener('click', d2bScan);
+    $('d2float').addEventListener('click', d2bFloat);
+    $('d2check').addEventListener('click', d2bCheckExp);
+    onEnter('d2In', d2bCheckExp);
+    $('d2reveal').addEventListener('click', function () {
+      if (S.step !== 2) { return; }
+      S.clean = false;
+      d2bExpCorrect(true);
+    });
+    $('d3check').addEventListener('click', d2bCheckRegister);
+    $('d3hint').addEventListener('click', function () { showExpHeadings(); });
+    $('d3reveal').addEventListener('click', d2bRevealRegister);
+
+    newQuestion();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
